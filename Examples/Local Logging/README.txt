@@ -1,0 +1,1 @@
+To use these examples as they are, you need the "redu_logger.py" module to be present on the same directory.
