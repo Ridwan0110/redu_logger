@@ -1,6 +1,6 @@
 # redu_logger
 
-redu_logger.py is the main module file. This is a custom logger written in Python for use with Python applications and scripts.
+redu_logger.py is the main module file. This is a custom logger written in Python for use with Python applications and scripts. This is something I made during a personal project, and I love to share things with the world that helped me and might help someone else. This is not something advanced. It's a basic Python module for logging, and it's very manual.
 
 ## Features
 
