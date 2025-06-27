@@ -1,5 +1,8 @@
 # redu_logger
 
+[![GitHub](https://img.shields.io/badge/source-GitHub-blue?logo=github)](https://github.com/ridawn0110/redu_logger)
+
+
 redu_logger.py is the main module file. This is a custom logger written in Python for use with Python applications and scripts. This is something I made during a personal project, and I love to share things with the world that helped me and might help someone else. This is not something advanced. It's a basic Python module for logging, and it's very manual.
 
 ## Installation
