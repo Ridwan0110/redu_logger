@@ -1,6 +1,17 @@
 # redu_logger
 
-redu_logger.py is the main module file. This is a custom logger written in Python for use with Python applications and scripts.
+[![GitHub](https://img.shields.io/badge/source-GitHub-blue?logo=github)](https://github.com/Ridwan0110/redu_logger)
+
+
+redu_logger.py is the main module file. This is a custom logger written in Python for use with Python applications and scripts. This is something I made during a personal project, and I love to share things with the world that helped me and might help someone else. This is not something advanced. It's a basic Python module for logging, and it's very manual.
+
+## Installation
+
+This module is not uploaded to PyPI. I didn't do it because this module is not big enough to go through the process of uploading to PyPI. Also, I like to keep things in my control. That's why I uploaded it to my server. Here is the simple command you have to run in your terminal to install the latest version of redu_logger:
+
+```
+pip install redu-logger --find-links https://python.ridwanabid.com/repository/simple/redu_logger/
+```
 
 ## Features
 
@@ -121,7 +132,7 @@ logger = redu_logger.RemoteLogger(
 
 # Codes...
 ```
-Here, the argument `is_main` is not used. This is crucial for Multi-Log to work properly. There can only be one main file, which will run the other files internally, and in their initialization of the logger, `is_main` has to be set to **False**. But we didn't set it here because it is set to **False** by default. There is more to setting up Multi-Log properly. Look into the wiki to learn more.
+Here, the argument `is_main` is not used. This is crucial for Multi-Log to work properly. There can only be one main file, which will run the other files internally, and in their initialization of the logger, `is_main` has to be set to **False**. But we didn't set it here because it is set to **False** by default. There is more to setting up Multi-Log properly. Look into the WikI to learn more.
 
 ### Logging remotely:
 
