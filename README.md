@@ -6,7 +6,9 @@ redu_logger.py is the main module file. This is a custom logger written in Pytho
 
 This module is not uploaded to PyPI. I didn't do it because this module is not big enough to go through the process of uploading to PyPI. Also, I like to keep things in my control. That's why I uploaded it to my server. Here is the simple command you have to run in your terminal to install the latest version of redu_logger:
 
-`pip install redu-logger --find-links https://python.ridwanabid.com/repository/simple/redu_logger/`
+```
+pip install redu-logger --find-links https://python.ridwanabid.com/repository/simple/redu_logger/
+```
 
 ## Features
 
