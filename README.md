@@ -1,5 +1,9 @@
 # redu_logger
+Named as "redu-logger" for pip name normalization.
 
+[![Python](https://img.shields.io/badge/python-3.6%2B-blue?logo=python)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/license/mit/)
+[![Version](https://img.shields.io/badge/version-1.0.5-blue)](https://github.com/Ridwan0110/redu_logger/releases)
 [![GitHub](https://img.shields.io/badge/source-GitHub-blue?logo=github)](https://github.com/Ridwan0110/redu_logger)
 
 
@@ -10,10 +14,10 @@ redu_logger.py is the main module file. This is a custom logger written in Pytho
 This module is not uploaded to PyPI. I uploaded it to my server. Here is the simple command you have to run in your terminal to install the latest version of redu_logger:
 
 ```
-pip install redu-logger --find-links https://python.ridwanabid.com/repository/simple/redu_logger/
+pip install redu-logger --extra-index-url https://python.ridwanabid.com/repository/simple
 ```
 
-If you are worried about security, go to the link and download the files manually. See them inside. The source code is there.
+If you are worried about security, go to the [link](https://python.ridwanabid.com/repository/simple) and download the files manually. See them inside. The source code is there.
 
 ## Features
 

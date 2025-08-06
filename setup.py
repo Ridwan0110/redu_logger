@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="redu_logger",
+    name="redu-logger",
     version="1.0.5",
     author="Ridwan Hossain Abid",
     description="A Python module to log data in files locally or remotely for any application or script.",
