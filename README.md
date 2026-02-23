@@ -143,3 +143,6 @@ Here, the argument `is_main` is not used. This is crucial for Multi-Log to work 
 ### Logging remotely:
 
 I once logged remotely for my one script, but never had to then. That's why the support and the method of logging remotely are a bit complicated and manual. For remote logging to work, you need some sort of server. I used Flask, but I don't have the code on how I did that. So, until I decide to create a server script for remote logging, you have to make a server that can communicate with this module for remote logging.
+
+## Known Issues
+- Writing log entries containing Unicode emojis (e.g., 🟢, ⚪) triggers a `charmap` codec error on Windows environments if the local filesystem encoding is not explicitly set to UTF-8.
