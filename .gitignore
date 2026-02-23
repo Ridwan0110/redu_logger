@@ -180,5 +180,7 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# By Developer
+# Redu-Dev
 test.py
+Examples/Local Logging/logs
+Examples/Remote Logging/logs
