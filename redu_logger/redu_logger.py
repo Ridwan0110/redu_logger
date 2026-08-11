@@ -9,59 +9,12 @@ import atexit
 from datetime import datetime
 from pathlib import Path
 from requests.auth import HTTPBasicAuth
+from typing import Union
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 
 CURRENT_DIRECTORY = Path.cwd()
 
-
-class Utilities:
-    @staticmethod
-    def exists_path(path):
-        """
-        Checks if the folder exists. If not, it creates the folder.
-
-        :param path: The path to be checked.
-        """
-        if not Path(path).exists():
-            Path(path).mkdir(parents=True, exist_ok=True)
-
-    @staticmethod
-    def exists_file(file_path):
-        """
-        Checks if the file exists. If not, it creates the file.
-
-        :param file_path: The path to the file to be checked.
-        """
-        try:
-            file_path = Path(file_path)
-            if not file_path.parent.exists():
-                file_path.parent.mkdir(parents=True, exist_ok=True)
-            file_path.touch(exist_ok=True)
-        except Exception as e:
-            print(f"Error ensuring file exists: {e}")
-
-    @staticmethod
-    def join_path_with_cwd(*paths):
-        """
-        Join the given paths with the root directory.
-
-        :param paths: Paths to join.
-        :return: Joined path.
-        """
-        joined_path = Path.joinpath(CURRENT_DIRECTORY, *paths)
-        return str(joined_path)
-
-    @staticmethod
-    def generate_launch_id_path(log_path: Path):
-        # Traverse up until we reach the "logs" folder
-        for parent in [log_path] + list(log_path.parents):
-            if parent.name == "logs":
-                launch_id_path = str(parent)
-                break
-        else:
-            launch_id_path = str(log_path)  # Fallback to current path
-        return launch_id_path
 
 class RemoteLogger:
     def __init__(self,
@@ -92,24 +45,24 @@ class RemoteLogger:
             auth (bool): If true use HTTPBasicAuth to authenticate. Default is false.
             username (str): Username for authentication if enabled.
             password (str): Password for authentication if enabled.
-            local_log_file_name (str): Name of the log file. Default is "logs".
+            local_log_file_name (str): Name of the log file. Default is "log".
             local_log_path (str): Path to save the log file. Default is "logs".
             local_log_extension (str): Extension of the log file. Default is "log".
             local_multi_log (bool): If true, log to multiple files. Default is false.
         """
-        # Initialize Arguments
-        self.is_main = is_main
+        # Initialize Primary Arguments
+        self.local_logging = None
         self.remote_logging = remote_logging
+        self.is_main = is_main
         self.disable_print = disable_print
-        self.local_log_file_name = local_log_file_name
+
 
         # Initialize Local Logging
 
+        ## Initialize Local Log Counter
 
-        # Initialize Local Log Counter
-
-        self.log_counter_file = Utilities.join_path_with_cwd(local_log_path, "log_counter.txt")
-        Utilities.exists_file(self.log_counter_file)
+        self.log_counter_file = self._join_path_with_cwd(local_log_path, "log_counter.txt")
+        self._exists_file(self.log_counter_file)
 
         try:  # Try to read the log counter and increment it, with default value handling if file not found
             with open(self.log_counter_file, 'r+') as f:
@@ -122,18 +75,17 @@ class RemoteLogger:
                 self.log_counter = 1
                 f.write(str(self.log_counter + 1))
 
-        # Initialize Local Log Path
+        ## Initialize Local Log Path
+
         ## WARNING: The local_log_path should be declared before Multi-Log Variables else it will crash
+        self.local_log_path = Path(self._join_path_with_cwd(local_log_path))
+        self._exists_path(self.local_log_path)
 
-        self.local_log_path = local_log_path
-        self.local_log_path = Path(Utilities.join_path_with_cwd(local_log_path))
-        Utilities.exists_path(self.local_log_path)
-
-        # Multi-Log Variables
+        ## Multi-Log Variables
 
         self.local_multi_log = local_multi_log
         if self.local_multi_log:
-            self.launch_id_path = Utilities.generate_launch_id_path(self.local_log_path)
+            self.launch_id_path = self._generate_launch_id_path(self.local_log_path)
             self.launch_id_file = os.path.join(self.launch_id_path, "launch_id.txt")
 
             # Only the main instances should handle the launch ID file
@@ -142,7 +94,7 @@ class RemoteLogger:
             for non-main instances and writes the next used launch ID to the file.
             """
             if self.is_main:
-                try:  # Increment the launch ID for main instances
+                try:
                     with open(self.launch_id_file, 'r+') as f:
                         self.launch_id = int(f.read() or '1')  # Use 1 if file is empty
                         f.seek(0)
@@ -153,15 +105,16 @@ class RemoteLogger:
                         self.launch_id = 1
                         f.write(str(self.launch_id + 1))
             else:
-                try:  # Does not increment the launch ID for non-main instances
+                try:
                     with open(self.launch_id_file, 'r') as f:
                         self.launch_id = int(f.read().strip() or '1')
                 except FileNotFoundError:
                     self.launch_id = 1
 
-        # Initialize Variables
+        ## Initialize Variables
 
         self.local_logging = local_logging
+        self.local_log_file_name = local_log_file_name
         self._local_log_extension = local_log_extension.replace(".", "").lower()  # Remove dot
         self.local_log_extension = self._local_log_extension
         self.log_launch_id_name = f"_launchID-{self.launch_id}" if self.local_multi_log else ""
@@ -170,23 +123,27 @@ class RemoteLogger:
 
 
         # Initialize Remote Logging
-        if self.remote_logging:  # Initialize the remote logging variables only if remote logging is enabled
+        if self.remote_logging:
             self.server_url = server_url
             self.auth = auth
             if self.server_url and self.auth:
-                self.username = username
-                self.password = password
+                if not username:
+                    self.remote_logging = False
+                    self.warning(f"Remote logging disabled. Authentication was enabled but username is empty")
+                else:
+                    self.username = username
+                    self.password = password or ""
 
 
         # Register the exit function to log when the program finishes
-        atexit.register(self._log_atexit)
+        atexit.register(self._log_at_exit)
 
         # Log the initialization
         self.info(f"Logger initialized. ReduLogger Version: {__version__}")
         self.info(f"Remote logging: {self.remote_logging}")
         self.info(f"Local logging: {self.local_logging}")
 
-    def _log_atexit(self):
+    def _log_at_exit(self):
         """
         Log an info level message when the logger exits, indicating safe exit.
         """
@@ -211,8 +168,7 @@ class RemoteLogger:
         if self.remote_logging and self.server_url:
             try:
                 if self.auth:
-                    response = requests.post(self.server_url, json=log_data,
-                                             auth=HTTPBasicAuth(self.username, self.password))
+                    response = requests.post(self.server_url, json=log_data, auth=HTTPBasicAuth(self.username, self.password))
                     response.raise_for_status()
                 else:
                     response = requests.post(self.server_url, json=log_data)
@@ -227,6 +183,56 @@ class RemoteLogger:
                     log_file.write(f"{log_data['timestamp']} - {log_data['level']}: {log_data['message']}\n")
             except Exception as e:
                 print(f"Failed to write log locally: {e}")
+
+    @staticmethod
+    def _exists_path(path):
+        """
+        Checks if the folder exists. If not, it creates the folder.
+
+        :param path: The path to be checked.
+        """
+        if not Path(path).exists():
+            Path(path).mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _exists_file(file_path):
+        """
+        Checks if the file exists. If not, it creates the file.
+
+        :param file_path: The path to the file to be checked.
+        """
+        try:
+            file_path = Path(file_path)
+            if not file_path.parent.exists():
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+            file_path.touch(exist_ok=True)
+        except Exception as e:
+            print(f"Error ensuring file exists: {e}")
+
+    @staticmethod
+    def _generate_launch_id_path(log_path: Path):
+        # Traverse up until we reach the "logs" folder
+        for parent in [log_path] + list(log_path.parents):
+            if parent.name == "logs":
+                launch_id_path = str(parent)
+                break
+        else:
+            launch_id_path = str(log_path)  # Fallback to current path
+        return launch_id_path
+
+    @staticmethod
+    def _join_path_with_cwd(*paths: Union[str, Path]):
+        """
+        Join the given paths with the root directory.
+
+        Args:
+            paths: Paths to join.
+
+        Returns:
+            Joined path.
+        """
+        joined_path = Path.joinpath(CURRENT_DIRECTORY, *paths)
+        return str(joined_path)
 
     def info(self, message, print_message: bool = False):
         """
