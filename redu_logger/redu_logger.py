@@ -158,21 +158,22 @@ class RemoteLogger:
         :raises requests.exceptions.RequestException: If there's an issue with the network connection or if the server
             can't be reached.
         """
-        log_data = {
-            "timestamp": datetime.now().isoformat(),
-            "level": level,
-            "message": message
-        }
+        log_data = f"{datetime.now().isoformat()} - {level}: {message}"
+        json_data = {"log": log_data}
 
         # Write log remotely
+        timeout = 5.0
         if self.remote_logging and self.server_url:
             try:
                 if self.auth:
-                    response = requests.post(self.server_url, json=log_data, auth=HTTPBasicAuth(self.username, self.password))
+                    response = requests.post(self.server_url, json=json_data,
+                                             auth=HTTPBasicAuth(self.username, self.password), timeout = timeout)
                     response.raise_for_status()
                 else:
-                    response = requests.post(self.server_url, json=log_data)
+                    response = requests.post(self.server_url, json=log_data, timeout = timeout)
                     response.raise_for_status()
+            except requests.exceptions.Timeout as e:
+                print(f"Timeout on writing remote log to server")
             except requests.exceptions.RequestException as e:
                 print(f"Failed to write remote log to server: {e}")
 
@@ -180,7 +181,7 @@ class RemoteLogger:
         if self.local_logging:
             try:
                 with open(self.local_log_file, 'a') as log_file:
-                    log_file.write(f"{log_data['timestamp']} - {log_data['level']}: {log_data['message']}\n")
+                    log_file.write(f"{log_data}\n")
             except Exception as e:
                 print(f"Failed to write log locally: {e}")
 
