@@ -1,5 +1,5 @@
 """
-redu_logger.py: ReduLogger is a simple and easy-to-use logger for logging remotely to a server and locally to the machine.
+ReduLogger is a simple and easy-to-use logger for logging remotely to a server and locally to the machine.
 """
 
 # Imports
@@ -83,17 +83,19 @@ class RemoteLogger:
 
         Default log levels are: INFO, WARNING, ERROR, CRITICAL, DEBUG.
 
-        :param local_logging: If true, log locally to the local machine.
-        :param remote_logging: If true, log remotely to the server.
-        :param disable_print: If true, disable printing locally. Default is false
-        :param server_url: URL of the server to log remotely.
-        :param auth: If true use HTTPBasicAuth to authenticate. Default is false.
-        :param username: Username for authentication if enabled.
-        :param password: Password for authentication if enabled.
-        :param local_log_file_name: Name of the log file. Default is "logs".
-        :param local_log_path: Path to save the log file. Default is "logs".
-        :param local_log_extension: Extension of the log file. Default is "log".
-        :param local_multi_log: If true, log to multiple files. Default is false.
+        Args:
+            local_logging (bool): If true, log locally to the local machine.
+            remote_logging (bool): If true, log remotely to the server.
+            is_main (bool): If true, assigns instance main. Used for multilog. Default is false
+            disable_print (bool): If true, disable printing locally. Default is false
+            server_url (str): URL of the server to log remotely.
+            auth (bool): If true use HTTPBasicAuth to authenticate. Default is false.
+            username (str): Username for authentication if enabled.
+            password (str): Password for authentication if enabled.
+            local_log_file_name (str): Name of the log file. Default is "logs".
+            local_log_path (str): Path to save the log file. Default is "logs".
+            local_log_extension (str): Extension of the log file. Default is "log".
+            local_multi_log (bool): If true, log to multiple files. Default is false.
         """
         # Initialize Arguments
         self.is_main = is_main
