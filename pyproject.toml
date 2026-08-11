@@ -1,3 +1,25 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=82.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "redu-logger"
+version = "1.0.6"
+description = "A Python module to log data in files locally or remotely for any application or script."
+readme = "README.md"
+requires-python = ">=3.6"
+authors = [
+    { name = "Ridwan Hossain Abid" }
+]
+dependencies = [
+    "requests>=2.32.3,<3.0.0",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ridwan0110/redu_logger"
