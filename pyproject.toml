@@ -23,3 +23,8 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/Ridwan0110/redu_logger"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["redu_logger*"]
+exclude = ["pyvenv*", "Examples*", "GitHub*"]
