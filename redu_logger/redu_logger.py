@@ -6,17 +6,20 @@ ReduLogger is a simple and easy-to-use logger for logging remotely to a server a
 import os
 import requests
 import atexit
+import sys
 from datetime import datetime
 from pathlib import Path
 from requests.auth import HTTPBasicAuth
-from typing import Union
+from typing import Union, Optional
 
-__version__ = "1.0.6"
+__version__ = "1.1.0"
 
 CURRENT_DIRECTORY = Path.cwd()
 
 
 class RemoteLogger:
+    StackTrace = list[tuple[str, int, str]]
+
     def __init__(self,
                  local_logging: bool,
                  remote_logging: bool,
@@ -153,9 +156,12 @@ class RemoteLogger:
         """
         Send a log with timestamp, level and message to the remote server.
 
-        :param level: Level of the log.
-        :param message: Message of the log.
-        :raises requests.exceptions.RequestException: If there's an issue with the network connection or if the server
+        Args:
+            level: Level of the log.
+            message: Message of the log.
+
+        Raises:
+            requests.exceptions.RequestException: If there's an issue with the network connection or if the server
             can't be reached.
         """
         log_data = f"{datetime.now().isoformat()} - {level}: {message}"
@@ -190,7 +196,8 @@ class RemoteLogger:
         """
         Checks if the folder exists. If not, it creates the folder.
 
-        :param path: The path to be checked.
+        Args:
+            path: The path to be checked.
         """
         if not Path(path).exists():
             Path(path).mkdir(parents=True, exist_ok=True)
@@ -200,7 +207,8 @@ class RemoteLogger:
         """
         Checks if the file exists. If not, it creates the file.
 
-        :param file_path: The path to the file to be checked.
+        Args:
+            file_path: The path to the file to be checked.
         """
         try:
             file_path = Path(file_path)
@@ -235,68 +243,154 @@ class RemoteLogger:
         joined_path = Path.joinpath(CURRENT_DIRECTORY, *paths)
         return str(joined_path)
 
-    def info(self, message, print_message: bool = False):
+    @staticmethod
+    def _stack_trace_formatter(trace: StackTrace) -> str:
+        if not trace:
+            return " | Stack Trace: No stack trace available"
+
+        trace_lines = [f"{path}:{line} inside {func}()" for path, line, func in trace]
+        return " | Stack Trace: " + " -> ".join(trace_lines)
+
+    @staticmethod
+    def _who_called_me(
+            depth: Optional[int] = 1) -> StackTrace:
+        """
+        Returns the filename, line number, and function name of the caller.
+
+        Args:
+            depth:
+                - **int >= 0:** Specific stack depth (0 = _who_called_me, 1 = direct caller, etc.)
+                - **int < 0:** Traces back the entire call stack up to the root.
+                - **None:** Empty list
+
+        Returns:
+            - list: Frame tuple(s). Returns [] on error or None depth.
+        """
+        if depth is None:
+            return []
+
+        if not hasattr(sys, "_getframe"):
+            print(
+                "Stack trace isn't supported by the current Python interpreter. Make sure Python running CPython as execution engine")
+            return []
+
+        if depth < 0:
+            frames = []
+            curr_depth = 1  # Start at 1 to skip _who_called_me itself
+            while True:
+                try:
+                    frame = sys._getframe(curr_depth)
+                    frames.append((frame.f_code.co_filename, frame.f_lineno, frame.f_code.co_name))
+                    curr_depth += 1
+                except ValueError:
+                    # Reached the end of the execution stack
+                    break
+            return frames
+
+        try:
+            frame = sys._getframe(depth)
+            return [(frame.f_code.co_filename, frame.f_lineno, frame.f_code.co_name)]
+        except ValueError:
+            return []
+
+    def info(self, message, print_message: bool = False, trace_levels: int = None):
         """
         Send a log as INFO level
 
-        :param message: Message of the log
-        :param print_message: Prints the message to the console if True. Default is False
+        Args:
+            message: Message of the log
+            print_message: Prints the message to the console if True. Default is False
+            trace_levels: Stack trace to certain levels and log that message
         """
+        if trace_levels is not None:
+            trace = self._stack_trace_formatter(self._who_called_me(trace_levels))
+            message = f"{message}\n{trace}"
+
         self._log("INFO", message)
         if print_message and not self.disable_print:
             print(f"[INFO] {message}")
 
-    def warning(self, message, print_message: bool = False):
+    def warning(self, message, print_message: bool = False, trace_levels: int = None):
         """
         Send a log as WARNING level
 
-        :param message: Message of the log
-        :param print_message: Prints the message to the console if True. Default is False
+        Args:
+            message: Message of the log
+            print_message: Prints the message to the console if True. Default is False
+            trace_levels: Stack trace to certain levels and log that message
         """
+        if trace_levels is not None:
+            trace = self._stack_trace_formatter(self._who_called_me(trace_levels))
+            message = f"{message}\n{trace}"
+
         self._log("WARNING", message)
         if print_message and not self.disable_print:
             print(f"[WARNING] {message}")
 
-    def error(self, message, print_message: bool = False):
+    def error(self, message, print_message: bool = False, trace_levels: int = None):
         """
         Send a log as ERROR level
 
-        :param message: Message of the log
-        :param print_message: Prints the message to the console if True. Default is False
+        Args:
+            message: Message of the log
+            print_message: Prints the message to the console if True. Default is False
+            trace_levels: Stack trace to certain levels and log that message
         """
+        if trace_levels is not None:
+            trace = self._stack_trace_formatter(self._who_called_me(trace_levels))
+            message = f"{message}\n{trace}"
+
         self._log("ERROR", message)
         if print_message and not self.disable_print:
             print(f"[ERROR] {message}")
 
-    def critical(self, message, print_message: bool = False):
+    def critical(self, message, print_message: bool = False, trace_levels: int = None):
         """
         Send a log as CRITICAL level
 
-        :param message: Message of the log
-        :param print_message: Prints the message to the console if True. Default is False
+        Args:
+            message: Message of the log
+            print_message: Prints the message to the console if True. Default is False
+            trace_levels: Stack trace to certain levels and log that message
         """
+        if trace_levels is not None:
+            trace = self._stack_trace_formatter(self._who_called_me(trace_levels))
+            message = f"{message}\n{trace}"
+
         self._log("CRITICAL", message)
         if print_message and not self.disable_print:
             print(f"[CRITICAL] {message}")
 
-    def debug(self, message, print_message: bool = False):
+    def debug(self, message, print_message: bool = False, trace_levels: int = None):
         """
         Send a log as DEBUG level
 
-        :param message: Message of the log
-        :param print_message: Prints the message to the console if True. Default is False
+        Args:
+            message: Message of the log
+            print_message: Prints the message to the console if True. Default is False
+            trace_levels: Stack trace to certain levels and log that message
         """
+        if trace_levels is not None:
+            trace = self._stack_trace_formatter(self._who_called_me(trace_levels))
+            message = f"{message}\n{trace}"
+
         self._log("DEBUG", message)
         if print_message and not self.disable_print:
             print(f"[DEBUG] {message}")
 
-    def connection(self, message, print_message: bool = False):
+    def connection(self, message, print_message: bool = False, trace_levels: int = None):
         """
         Send a log as CONNECTION level
 
-        :param message: Message of the log
-        :param print_message: Prints the message to the console if True. Default is False
+        Args:
+            message: Message of the log
+            print_message: Prints the message to the console if True. Default is False
+            trace_levels: Stack trace to certain levels and log that message
         """
+        if trace_levels is not None:
+            trace = self._stack_trace_formatter(self._who_called_me(trace_levels))
+            message = f"{message}\n{trace}"
+
         self._log("CONNECTION", message)
         if print_message and not self.disable_print:
             print(f"[CONNECTION] {message}")

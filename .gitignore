@@ -184,4 +184,5 @@ cython_debug/
 test.py
 Examples/Local Logging/logs
 Examples/Remote Logging/logs
-test/
+test/test.py
+test/log.txt
