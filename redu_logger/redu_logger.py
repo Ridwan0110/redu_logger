@@ -70,7 +70,7 @@ class RemoteLogger:
                 f.seek(0)
                 f.write(str(self.log_counter + 1))
                 f.truncate()  # Remove everything after the counter
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             with open(self.log_counter_file, 'w') as f:
                 self.log_counter = 1
                 f.write(str(self.log_counter + 1))
@@ -100,7 +100,7 @@ class RemoteLogger:
                         f.seek(0)
                         f.write(str(self.launch_id + 1))
                         f.truncate()
-                except FileNotFoundError:
+                except (FileNotFoundError, ValueError):
                     with open(self.launch_id_file, 'w') as f:
                         self.launch_id = 1
                         f.write(str(self.launch_id + 1))
@@ -108,7 +108,7 @@ class RemoteLogger:
                 try:
                     with open(self.launch_id_file, 'r') as f:
                         self.launch_id = int(f.read().strip() or '1')
-                except FileNotFoundError:
+                except (FileNotFoundError, ValueError):
                     self.launch_id = 1
 
         ## Initialize Variables
