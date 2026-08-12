@@ -1,23 +1,29 @@
 # redu_logger
-Named as "redu-logger" for pip name normalization.
+Package named as "redu-logger" for pip name normalization.
 
 [![Python](https://img.shields.io/badge/python-3.6%2B-blue?logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/license/mit/)
-[![Version](https://img.shields.io/badge/version-1.0.5-blue)](https://github.com/Ridwan0110/redu_logger/releases)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)](https://github.com/Ridwan0110/redu_logger/releases)
 [![GitHub](https://img.shields.io/badge/source-GitHub-blue?logo=github)](https://github.com/Ridwan0110/redu_logger)
 
 
-redu_logger.py is the main module file. This is a custom logger written in Python for use with Python applications and scripts. This is something I made during a personal project, and I love to share things with the world that helped me and might help someone else. This is not something advanced. It's a basic Python module for logging, and it's very manual.
+**Primary file:** [redu_logger.py](/redu_logger/redu_logger.py)
+
+redu_logger is a custom logger written in Python for use with Python applications and scripts. This is something I made during a personal project, and I love to share things with the world that helped me and might help someone else. This is not something advanced. It's a basic Python module for logging, and it's very manual.
 
 ## Installation
 
 This module is not uploaded to PyPI. I uploaded it to my server. Here is the simple command you have to run in your terminal to install the latest version of redu_logger:
 
-```
-pip install redu-logger --extra-index-url https://python.ridwanabid.com/repository/simple
+```bash
+pip install redu-logger --extra-index-url https://pypi.sarabserver.xyz/simple
 ```
 
-If you are worried about security, go to the [link](https://python.ridwanabid.com/repository/simple) and download the files manually. See them inside. The source code is there.
+You can also install it locally by downloading the source code and build it using this command:
+
+```bash
+pip install -e .
+```
 
 ## Features
 
@@ -25,6 +31,7 @@ If you are worried about security, go to the [link](https://python.ridwanabid.co
 - Log both locally and remotely
 - Log to multiple files in local logging. A feature called Multi-Log
 - Application session tracking for logs to easily understand which log files are for a specified session
+- Stack tracing for further debugging
 
 ## Log Levels
 **Version of 'redu_logger.py' is <ins>1.0.5</ins> when writing this.**
