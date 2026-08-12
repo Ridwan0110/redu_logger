@@ -170,7 +170,7 @@ class RemoteLogger:
                                              auth=HTTPBasicAuth(self.username, self.password), timeout = timeout)
                     response.raise_for_status()
                 else:
-                    response = requests.post(self.server_url, json=log_data, timeout = timeout)
+                    response = requests.post(self.server_url, json=json_data, timeout = timeout)
                     response.raise_for_status()
             except requests.exceptions.Timeout as e:
                 print(f"Timeout on writing remote log to server")
